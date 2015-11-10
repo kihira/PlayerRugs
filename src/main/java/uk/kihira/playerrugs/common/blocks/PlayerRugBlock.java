@@ -7,6 +7,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 
@@ -36,6 +37,10 @@ public class PlayerRugBlock extends BlockContainer {
     @Override
     public void onBlockPlacedBy(World world, int xPos, int yPos, int zPos, EntityLivingBase entity, ItemStack itemStack) {
         ((PlayerRugTE) world.getTileEntity(xPos, yPos, zPos)).playerProfile = NBTUtil.func_152459_a(itemStack.getTagCompound().getCompoundTag("PlayerProfile"));
+
+        // Set rotation
+        int rot = MathHelper.floor_float(entity.rotationYaw*4f/360f+0.5f) & 3;
+        world.setBlockMetadataWithNotify(xPos, yPos, zPos, rot, 3);
     }
 
     @Override

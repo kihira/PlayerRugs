@@ -33,7 +33,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
             AbstractClientPlayer.getDownloadImageSkin(playerSkin, profile.getName());
         }
 
-        float angle = 0f;
+        float angle = tileEntity.getBlockMetadata()*-90f;
 
         GL11.glPushMatrix();
         GL11.glTranslated(xPos + 0.5f, yPos, zPos + 0.5f);
