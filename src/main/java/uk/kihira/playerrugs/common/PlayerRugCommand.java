@@ -5,8 +5,6 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTUtil;
 import uk.kihira.playerrugs.PlayerRugs;
 
 public class PlayerRugCommand extends CommandBase {
@@ -23,12 +21,7 @@ public class PlayerRugCommand extends CommandBase {
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
         EntityPlayer player = (EntityPlayer) sender;
-        ItemStack itemStack = new ItemStack(PlayerRugs.INSTANCE.playerRugBlock);
-        NBTTagCompound tagCompound = new NBTTagCompound();
-        NBTTagCompound playerProfileTag = new NBTTagCompound();
-        NBTUtil.func_152460_a(playerProfileTag, args.length == 1 ? new GameProfile(null, args[0]) : player.getGameProfile());
-        tagCompound.setTag("PlayerProfile", playerProfileTag);
-        itemStack.setTagCompound(tagCompound);
+        ItemStack itemStack = PlayerRugs.INSTANCE.getPlayerRugStack(args.length == 1 ? new GameProfile(null, args[0]) : player.getGameProfile());
         player.setCurrentItemOrArmor(0, itemStack);
     }
 

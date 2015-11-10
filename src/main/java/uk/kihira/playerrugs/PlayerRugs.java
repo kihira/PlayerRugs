@@ -1,5 +1,6 @@
 package uk.kihira.playerrugs;
 
+import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -15,6 +16,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import uk.kihira.playerrugs.common.PlayerRugCommand;
+import uk.kihira.playerrugs.common.PlayerRugRecipe;
 import uk.kihira.playerrugs.common.blocks.PlayerRugBlock;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 import uk.kihira.playerrugs.proxy.CommonProxy;
@@ -38,6 +40,8 @@ public class PlayerRugs {
         proxy.registerRenderers();
 
         MinecraftForge.EVENT_BUS.register(this);
+
+        GameRegistry.addRecipe(new PlayerRugRecipe());
     }
 
     @Mod.EventHandler
@@ -49,13 +53,22 @@ public class PlayerRugs {
     public void onDeath(LivingDeathEvent e) {
         if (e.entityLiving instanceof EntityPlayer && e.source == DamageSource.anvil) {
             EntityPlayer player = (EntityPlayer) e.entityLiving;
-            ItemStack itemStack = new ItemStack(playerRugBlock);
-            NBTTagCompound tagCompound = new NBTTagCompound();
-            NBTTagCompound playerProfileTag = new NBTTagCompound();
-            NBTUtil.func_152460_a(playerProfileTag, player.getGameProfile());
-            tagCompound.setTag("PlayerProfile", playerProfileTag);
-            itemStack.setTagCompound(tagCompound);
+            ItemStack itemStack = getPlayerRugStack(player.getGameProfile());
             player.worldObj.spawnEntityInWorld(new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, itemStack));
         }
+    }
+
+    public ItemStack getPlayerRugStack(GameProfile profile) {
+        ItemStack itemStack = new ItemStack(playerRugBlock);
+        NBTTagCompound tagCompound = new NBTTagCompound();
+        NBTTagCompound playerProfileTag = new NBTTagCompound();
+
+        if (profile != null) {
+            NBTUtil.func_152460_a(playerProfileTag, profile);
+        }
+        tagCompound.setTag("PlayerProfile", playerProfileTag);
+        itemStack.setTagCompound(tagCompound);
+
+        return itemStack;
     }
 }
