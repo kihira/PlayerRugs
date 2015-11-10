@@ -38,7 +38,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         GL11.glPushMatrix();
         GL11.glTranslated(xPos + 0.5f, yPos, zPos + 0.5f);
         GL11.glRotatef(angle, 0f, 1f, 0f);
-        GL11.glTranslated(0, 0, -7f/16f);
+        GL11.glTranslated(0, 0, -9f/16f);
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         GL11.glScalef(-1.0F, -1.0F, 1.0F);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
@@ -57,7 +57,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
 
         // Left Arm
         float xOffset = 4f/16f-0.5f;
-        float zOffset = 7f/16f-0.5f;
+        float zOffset = 5f/16f-0.5f;
         float thickness = 1f/16f;
         float yOffset = 1f/16f;
         tess.startDrawingQuads();
@@ -66,22 +66,22 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
 
         // Right Arm
         xOffset = 12f/16f-0.5f;
-        zOffset = 3f/16f-0.5f;
+        zOffset = 1f/16f-0.5f;
         buildBodyPart(xOffset, yOffset, zOffset, 12f/16f, thickness, 4f/16f, 56f/texWidth, 20f/texHeight, 52f/texWidth, 32f/texHeight, texWidth, texHeight);
 
         // Body
         xOffset = 0.25f-0.5f;
-        zOffset = 3f/16f-0.5f;
+        zOffset = 1f/16f-0.5f;
         buildBodyPart(xOffset, yOffset, zOffset, 8f/16f, thickness, 12f/16f, 32f/texWidth, 20f/texHeight, 40f/texWidth, 32f/texHeight, texWidth, texHeight);
 
         // Left Leg
         xOffset = 0.25f-0.5f;
-        zOffset = 15f/16f-0.5f;
+        zOffset = 13f/16f-0.5f;
         buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 16f/texWidth, 20f/texHeight, 12f/texWidth, 32f/texHeight, texWidth, texHeight);
 
         // Right Leg
         xOffset = 0.5f-0.5f;
-        zOffset = 15f/16f-0.5f;
+        zOffset = 13f/16f-0.5f;
         buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 12f/texWidth, 20f/texHeight, 16f/texWidth, 32f/texHeight, texWidth, texHeight);
 
         tess.draw();

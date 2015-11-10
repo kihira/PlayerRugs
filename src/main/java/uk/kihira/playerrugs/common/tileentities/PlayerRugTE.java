@@ -7,10 +7,13 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 
 public class PlayerRugTE extends TileEntity {
 
     public GameProfile playerProfile;
+
+    private AxisAlignedBB renderBox = AxisAlignedBB.getBoundingBox(-1f, 0f, -1f, 1f, 1f, 1f);
 
     @Override
     public void readFromNBT(NBTTagCompound nbtTagCompound) {
@@ -41,5 +44,10 @@ public class PlayerRugTE extends TileEntity {
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         NBTTagCompound tagCompound = pkt.func_148857_g();
         readFromNBT(tagCompound);
+    }
+
+    @Override
+    public AxisAlignedBB getRenderBoundingBox() {
+        return renderBox.copy().addCoord(xCoord, yCoord, zCoord);
     }
 }
