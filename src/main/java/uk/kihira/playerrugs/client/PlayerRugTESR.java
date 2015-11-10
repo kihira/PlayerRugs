@@ -2,6 +2,7 @@ package uk.kihira.playerrugs.client;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
@@ -52,6 +53,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         float texHeight = 32;
         float texWidth = 64;
         Tessellator tess = Tessellator.instance;
+        RenderHelper.disableStandardItemLighting();
 
         // Left Arm
         float xOffset = 4f/16f-0.5f;
@@ -82,6 +84,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 12f/texWidth, 20f/texHeight, 16f/texWidth, 32f/texHeight, texWidth, texHeight);
 
         tess.draw();
+        RenderHelper.enableStandardItemLighting();
         GL11.glPopMatrix();
     }
 
