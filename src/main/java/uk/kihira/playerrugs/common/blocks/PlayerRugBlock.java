@@ -16,9 +16,11 @@ import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 public class PlayerRugBlock extends BlockContainer {
 
     public PlayerRugBlock() {
-        super(Material.rock);
+        super(Material.cloth);
         setBlockName("playerRug");
         setCreativeTab(CreativeTabs.tabBlock);
+        setStepSound(soundTypeCloth);
+        setBlockTextureName("stone");
     }
 
     @Override
@@ -38,7 +40,9 @@ public class PlayerRugBlock extends BlockContainer {
 
     @Override
     public void onBlockPlacedBy(World world, int xPos, int yPos, int zPos, EntityLivingBase entity, ItemStack itemStack) {
-        ((PlayerRugTE) world.getTileEntity(xPos, yPos, zPos)).playerProfile = NBTUtil.func_152459_a(itemStack.getTagCompound().getCompoundTag("PlayerProfile"));
+        if (itemStack.hasTagCompound()) {
+            ((PlayerRugTE) world.getTileEntity(xPos, yPos, zPos)).playerProfile = NBTUtil.func_152459_a(itemStack.getTagCompound().getCompoundTag("PlayerProfile"));
+        }
 
         // Set rotation
         int rot = MathHelper.floor_float(entity.rotationYaw*4f/360f+0.5f) & 3;
