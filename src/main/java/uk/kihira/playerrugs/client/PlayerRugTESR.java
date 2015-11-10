@@ -16,10 +16,9 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
 
     @Override
     public void renderTileEntityAt(TileEntity tileEntity, double xPos, double yPos, double zPos, float partialTicks) {
-        //debug
-
         GameProfile profile = ((PlayerRugTE) tileEntity).playerProfile;
         ResourceLocation playerSkin = AbstractClientPlayer.locationStevePng;
+        float angle = tileEntity.getBlockMetadata()*-90f;
 
         if (profile != null) {
 /*            SkinManager skinManager = Minecraft.getMinecraft().func_152342_ad();
@@ -32,9 +31,9 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
             playerSkin = AbstractClientPlayer.getLocationSkin(profile.getName());
             AbstractClientPlayer.getDownloadImageSkin(playerSkin, profile.getName());
         }
+        bindTexture(playerSkin);
 
-        float angle = tileEntity.getBlockMetadata()*-90f;
-
+        // Render head
         GL11.glPushMatrix();
         GL11.glTranslated(xPos + 0.5f, yPos, zPos + 0.5f);
         GL11.glRotatef(angle, 0f, 1f, 0f);
@@ -43,7 +42,6 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         GL11.glScalef(-1.0F, -1.0F, 1.0F);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-        bindTexture(playerSkin);
         headModel.render(null, 0.0F, 0.0F, 0.0F, 0f, 0.0F, 0.0625f);
         GL11.glPopMatrix();
 
@@ -61,7 +59,6 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         float thickness = 1f/16f;
         float yOffset = 1f/16f;
         tess.startDrawingQuads();
-        //tess.setBrightness(500);
         buildBodyPart(xOffset, yOffset, zOffset, -12f/16f, thickness, -4f/16f, 52f/texWidth, 20f/texHeight, 56f/texWidth, 32f/texHeight, texWidth, texHeight);
 
         // Right Arm
@@ -99,6 +96,11 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
             tess.addVertexWithUV(xPos+width, yPos, zPos+length, maxU, maxV);
             tess.addVertexWithUV(xPos+width, yPos, zPos, minU, maxV);
 
+            tess.addVertexWithUV(xPos+width, yPos-depth, zPos, minU, maxV);
+            tess.addVertexWithUV(xPos+width, yPos-depth, zPos+length, maxU, maxV);
+            tess.addVertexWithUV(xPos, yPos-depth, zPos+length, maxU, minV);
+            tess.addVertexWithUV(xPos, yPos-depth, zPos, minU, minV);
+
             // Draws sides
             tess.addVertexWithUV(xPos, yPos-depth, zPos, minU, minV+(texDepth/texHeight));
             tess.addVertexWithUV(xPos, yPos-depth, zPos+length, maxU, minV+(texDepth/texHeight));
@@ -128,6 +130,11 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
             tess.addVertexWithUV(xPos, yPos, zPos+length, minU, maxV);
             tess.addVertexWithUV(xPos+width, yPos, zPos+length, maxU, maxV);
             tess.addVertexWithUV(xPos+width, yPos, zPos, maxU, minV);
+
+            tess.addVertexWithUV(xPos+width, yPos-depth, zPos, maxU, minV);
+            tess.addVertexWithUV(xPos+width, yPos-depth, zPos+length, maxU, maxV);
+            tess.addVertexWithUV(xPos, yPos-depth, zPos+length, minU, maxV);
+            tess.addVertexWithUV(xPos, yPos-depth, zPos, minU, minV);
 
             // Draws sides
             float uUpper = minU + ((minU < maxU) ? (texDepth/texWidth) : -(texDepth/texWidth));

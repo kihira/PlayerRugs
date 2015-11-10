@@ -32,7 +32,7 @@ public class PlayerRugBlock extends BlockContainer {
     }
 
     @Override
-    public boolean isNormalCube() {
+    public boolean renderAsNormalBlock() {
         return false;
     }
 
