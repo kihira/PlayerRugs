@@ -46,6 +46,7 @@ public class PlayerRugItemRenderer implements IItemRenderer {
             case EQUIPPED_FIRST_PERSON:
                 fakeTileEntity.blockMetadata = 0;
                 rugRenderer.renderTileEntityAt(fakeTileEntity, 0.25f, 0.5f, 0.25f, 0);
+                break;
             default:
                 fakeTileEntity.blockMetadata = 0;
                 rugRenderer.renderTileEntityAt(fakeTileEntity, -0.5f, 0f, -0.5f, 0);
