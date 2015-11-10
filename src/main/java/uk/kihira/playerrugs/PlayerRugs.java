@@ -18,6 +18,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import uk.kihira.playerrugs.common.PlayerRugCommand;
 import uk.kihira.playerrugs.common.PlayerRugRecipe;
 import uk.kihira.playerrugs.common.blocks.PlayerRugBlock;
+import uk.kihira.playerrugs.common.items.PlayerRugItem;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 import uk.kihira.playerrugs.proxy.CommonProxy;
 
@@ -34,7 +35,7 @@ public class PlayerRugs {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
-        GameRegistry.registerBlock(playerRugBlock = new PlayerRugBlock(), "playerRug");
+        GameRegistry.registerBlock(playerRugBlock = new PlayerRugBlock(), PlayerRugItem.class, "playerRug");
         GameRegistry.registerTileEntity(PlayerRugTE.class, "playerRug");
 
         proxy.registerRenderers();
