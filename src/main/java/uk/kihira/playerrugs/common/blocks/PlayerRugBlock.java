@@ -1,9 +1,11 @@
 package uk.kihira.playerrugs.common.blocks;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
@@ -29,6 +31,11 @@ public class PlayerRugBlock extends BlockContainer {
     @Override
     public boolean isNormalCube() {
         return false;
+    }
+
+    @Override
+    public void onBlockPlacedBy(World world, int xPos, int yPos, int zPos, EntityLivingBase entity, ItemStack itemStack) {
+        ((PlayerRugTE) world.getTileEntity(xPos, yPos, zPos)).playerProfile = NBTUtil.func_152459_a(itemStack.getTagCompound().getCompoundTag("PlayerProfile"));
     }
 
     @Override

@@ -1,25 +1,18 @@
 package uk.kihira.playerrugs.client;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelSkeletonHead;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.resources.SkinManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 
-import java.util.Map;
-
 public class PlayerRugTESR extends TileEntitySpecialRenderer {
 
-    //public PlayerRugModel headModel = new PlayerRugModel();
-    public ModelSkeletonHead headModel = new ModelSkeletonHead(0, 0, 64, 32);
+    public EnhancedSkullModel headModel = new EnhancedSkullModel(0, 0, 64, 32);
 
     @Override
     public void renderTileEntityAt(TileEntity tileEntity, double xPos, double yPos, double zPos, float partialTicks) {
@@ -29,13 +22,15 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         ResourceLocation playerSkin = AbstractClientPlayer.locationStevePng;
 
         if (profile != null) {
-            SkinManager skinManager = Minecraft.getMinecraft().func_152342_ad();
+/*            SkinManager skinManager = Minecraft.getMinecraft().func_152342_ad();
             Map skinMap = skinManager.func_152788_a(profile);
 
             // Attempt to load players skin if it is loaded or exists
             if (skinMap.containsKey(MinecraftProfileTexture.Type.SKIN)) {
                 playerSkin = skinManager.func_152792_a((MinecraftProfileTexture) skinMap.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN);
-            }
+            }*/
+            playerSkin = AbstractClientPlayer.getLocationSkin(profile.getName());
+            AbstractClientPlayer.getDownloadImageSkin(playerSkin, profile.getName());
         }
 
         float angle = 0f;
