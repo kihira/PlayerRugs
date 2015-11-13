@@ -30,7 +30,7 @@ public class PlayerRugRecipe implements IRecipe {
 
     @Override
     public ItemStack getCraftingResult(InventoryCrafting crafting) {
-        return PlayerRugs.INSTANCE.getPlayerRugStack(getGameProfile(crafting.getStackInRowAndColumn(0, 1)));
+        return PlayerRugs.INSTANCE.getPlayerRugStack(getGameProfile(crafting.getStackInSlot(1)));
     }
 
     @Override
