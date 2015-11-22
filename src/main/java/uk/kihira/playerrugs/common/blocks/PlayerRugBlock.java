@@ -4,13 +4,16 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import uk.kihira.playerrugs.PlayerRugs;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 
 public class PlayerRugBlock extends BlockContainer {
@@ -160,6 +163,11 @@ public class PlayerRugBlock extends BlockContainer {
         xOffset += xPos+0.5f;
         yOffset += yPos+0.5f;
         return AxisAlignedBB.getBoundingBox(xOffset-(xLength/2f)/16f, yOffset-(yLength/2f)/16f, zOffset-(zLength/2f)/16f, xOffset+(xLength/2f)/16f, yOffset+(yLength/2f)/16f, zOffset+(zLength/2f)/16f);
+    }
+
+    @Override
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player) {
+        return PlayerRugs.INSTANCE.getPlayerRugStack(((PlayerRugTE) world.getTileEntity(x, y, z)).playerProfile);
     }
 
     @Override
