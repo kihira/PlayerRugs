@@ -62,6 +62,12 @@ public class PlayerRugBlock extends BlockContainer {
     }
 
     @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int xPos, int yPos, int zPos) {
+        setBlockBoundsBasedOnState(world, xPos, yPos, zPos);
+        return super.getCollisionBoundingBoxFromPool(world, xPos, yPos, zPos);
+    }
+
+    @Override
     public void setBlockBoundsBasedOnState(IBlockAccess world, int xPos, int yPos, int zPos) {
         int meta = world.getBlockMetadata(xPos, yPos, zPos);
         if (meta >= 4) {
