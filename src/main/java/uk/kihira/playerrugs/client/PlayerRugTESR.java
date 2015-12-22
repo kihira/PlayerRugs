@@ -2,6 +2,7 @@ package uk.kihira.playerrugs.client;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -43,6 +44,14 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         GL11.glScalef(-1.0F, -1.0F, 1.0F);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glDisable(GL11.GL_LIGHTING);
+
+        if (tileEntity.getWorldObj() != null) {
+            int i = tileEntity.getWorldObj().getLightBrightnessForSkyBlocks(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, 0);
+            int j = i % 65536;
+            int k = i / 65536;
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F * 0.95f, (float)k / 1.0F * 0.95f);
+        }
 
         headModel.render(null, 0.0F, 0.0F, 0.0F, 0f, 0.0F, 0.0625f);
         GL11.glPopMatrix();
@@ -102,6 +111,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
 
         tess.draw();
         RenderHelper.enableStandardItemLighting();
+        GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glPopMatrix();
     }
 
