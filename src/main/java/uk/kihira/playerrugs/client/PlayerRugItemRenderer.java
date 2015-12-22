@@ -32,6 +32,9 @@ public class PlayerRugItemRenderer implements IItemRenderer {
         if (item.hasTagCompound()) {
             fakeTileEntity.playerProfile = NBTUtil.func_152459_a(item.getTagCompound().getCompoundTag("PlayerProfile"));
         }
+        else {
+            fakeTileEntity.playerProfile = null;
+        }
 
         switch (type) {
             case INVENTORY:

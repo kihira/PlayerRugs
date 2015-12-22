@@ -2,6 +2,7 @@ package uk.kihira.playerrugs.client;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -20,6 +21,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         GameProfile profile = ((PlayerRugTE) tileEntity).playerProfile;
         ResourceLocation playerSkin = AbstractClientPlayer.locationStevePng;
         float angle = tileEntity.getBlockMetadata()*-90f;
+        boolean standing = tileEntity.getBlockMetadata() >= 4;
 
         if (profile != null) {
 /*            SkinManager skinManager = Minecraft.getMinecraft().func_152342_ad();
@@ -36,12 +38,20 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
 
         // Render head
         GL11.glPushMatrix();
-        GL11.glTranslated(xPos + 0.5f, yPos, zPos + 0.5f);
+        GL11.glTranslated(xPos + 0.5f, yPos + (standing ? 0.4999f: 0f), zPos + 0.5f);
         GL11.glRotatef(angle, 0f, 1f, 0f);
-        GL11.glTranslated(0, 0, -9f/16f);
+        GL11.glTranslated(0, 0, standing ? 8f/16f: -9f/16f);
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         GL11.glScalef(-1.0F, -1.0F, 1.0F);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glDisable(GL11.GL_LIGHTING);
+
+        if (tileEntity.getWorldObj() != null) {
+            int i = tileEntity.getWorldObj().getLightBrightnessForSkyBlocks(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, 0);
+            int j = i % 65536;
+            int k = i / 65536;
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F * 0.95f, (float)k / 1.0F * 0.95f);
+        }
 
         headModel.render(null, 0.0F, 0.0F, 0.0F, 0f, 0.0F, 0.0625f);
         GL11.glPopMatrix();
@@ -49,42 +59,60 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         GL11.glPushMatrix();
         GL11.glTranslated(xPos+0.5f, yPos+0.001d, zPos+0.5f);
         GL11.glRotatef(angle, 0, 1, 0);
-        GL11.glScalef(1.2f, 1f, 1.2f);
         float texHeight = 32;
         float texWidth = 64;
         Tessellator tess = Tessellator.instance;
         RenderHelper.disableStandardItemLighting();
 
-        // Left Arm
+        if (standing) {
+            GL11.glRotatef(90f, 1f, 0f, 0f);
+            GL11.glTranslatef(0f, 7f/16f, -1f/16f);
+        }
+
         float xOffset = 4f/16f-0.5f;
         float zOffset = 5f/16f-0.5f;
         float thickness = 1f/16f;
         float yOffset = 1f/16f;
         tess.startDrawingQuads();
-        buildBodyPart(xOffset, yOffset, zOffset, -12f/16f, thickness, -4f/16f, 52f/texWidth, 20f/texHeight, 56f/texWidth, 32f/texHeight, texWidth, texHeight);
+
+        // Left Arm
+        if (standing) {
+            xOffset = -0.5f;
+            zOffset = 1f/16f-0.5f;
+            buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 44f/texWidth, 20f/texHeight, 48f/ texWidth, 32f/texHeight, texWidth, texHeight);
+        }
+        else {
+            buildBodyPart(xOffset, yOffset, zOffset, -12f/16f, thickness, -4f/16f, 52f/ texWidth, 20f/texHeight, 56f/texWidth, 32f/texHeight, texWidth, texHeight);
+        }
 
         // Right Arm
         xOffset = 12f/16f-0.5f;
         zOffset = 1f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 12f/16f, thickness, 4f/16f, 56f/texWidth, 20f/texHeight, 52f/texWidth, 32f/texHeight, texWidth, texHeight);
+        if (standing) {
+            buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 48f/texWidth, 20f/texHeight, 44f/texWidth, 32f/texHeight, texWidth, texHeight);
+        }
+        else {
+            buildBodyPart(xOffset, yOffset, zOffset, 12f/16f, thickness, 4f/16f, 56f/texWidth, 20f/texHeight, 52f/texWidth, 32f/texHeight, texWidth, texHeight);
+        }
 
         // Body
         xOffset = 0.25f-0.5f;
         zOffset = 1f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 8f/16f, thickness, 12f/16f, 32f/texWidth, 20f/texHeight, 40f/texWidth, 32f/texHeight, texWidth, texHeight);
+        buildBodyPart(xOffset, yOffset, zOffset, 8f/16f, thickness, 12f/16f, (standing ? 20f : 32f)/texWidth, 20f/texHeight, (standing ? 28f : 40f)/texWidth, 32f/texHeight, texWidth, texHeight);
 
         // Left Leg
         xOffset = 0.25f-0.5f;
         zOffset = 13f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 16f/texWidth, 20f/texHeight, 12f/texWidth, 32f/texHeight, texWidth, texHeight);
+        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, (standing ? 8f : 16f)/texWidth, 20f/texHeight, (standing ? 4f : 12f)/texWidth, 32f/texHeight, texWidth, texHeight);
 
         // Right Leg
         xOffset = 0.5f-0.5f;
         zOffset = 13f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 12f/texWidth, 20f/texHeight, 16f/texWidth, 32f/texHeight, texWidth, texHeight);
+        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, (standing ? 4f : 12f)/texWidth, 20f/texHeight, (standing ? 8f : 16f)/texWidth, 32f/texHeight, texWidth, texHeight);
 
         tess.draw();
         RenderHelper.enableStandardItemLighting();
+        GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glPopMatrix();
     }
 
