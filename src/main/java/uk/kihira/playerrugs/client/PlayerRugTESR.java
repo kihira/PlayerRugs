@@ -2,78 +2,80 @@ package uk.kihira.playerrugs.client;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.model.ModelHumanoidHead;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 
-public class PlayerRugTESR extends TileEntitySpecialRenderer {
+public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
 
-    public EnhancedSkullModel headModel = new EnhancedSkullModel(0, 0, 64, 32);
+    public ModelHumanoidHead headModel = new ModelHumanoidHead();
 
     @Override
-    public void renderTileEntityAt(TileEntity tileEntity, double xPos, double yPos, double zPos, float partialTicks) {
-        GameProfile profile = ((PlayerRugTE) tileEntity).playerProfile;
-        ResourceLocation playerSkin = AbstractClientPlayer.locationStevePng;
+    public void renderTileEntityAt(PlayerRugTE tileEntity, double xPos, double yPos, double zPos, float partialTicks, int destroyStage) {
+        GameProfile profile = tileEntity.getPlayerProfile();
+        ResourceLocation playerSkin;
         float angle = tileEntity.getBlockMetadata()*-90f;
         boolean standing = tileEntity.getBlockMetadata() >= 4;
 
         if (profile != null) {
-/*            SkinManager skinManager = Minecraft.getMinecraft().func_152342_ad();
-            Map skinMap = skinManager.func_152788_a(profile);
-
-            // Attempt to load players skin if it is loaded or exists
-            if (skinMap.containsKey(MinecraftProfileTexture.Type.SKIN)) {
-                playerSkin = skinManager.func_152792_a((MinecraftProfileTexture) skinMap.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN);
-            }*/
             playerSkin = AbstractClientPlayer.getLocationSkin(profile.getName());
             AbstractClientPlayer.getDownloadImageSkin(playerSkin, profile.getName());
         }
-        bindTexture(playerSkin);
+        else {
+            playerSkin = DefaultPlayerSkin.getDefaultSkinLegacy();
+        }
 
         // Render head
-        GL11.glPushMatrix();
-        GL11.glTranslated(xPos + 0.5f, yPos + (standing ? 0.4999f: 0f), zPos + 0.5f);
-        GL11.glRotatef(angle, 0f, 1f, 0f);
-        GL11.glTranslated(0, 0, standing ? 8f/16f: -9f/16f);
-        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-        GL11.glScalef(-1.0F, -1.0F, 1.0F);
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glDisable(GL11.GL_LIGHTING);
+        GlStateManager.pushMatrix();
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.enableAlpha();
+        GlStateManager.disableCull();
+        GlStateManager.disableLighting();
 
-        if (tileEntity.getWorldObj() != null) {
-            int i = tileEntity.getWorldObj().getLightBrightnessForSkyBlocks(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, 0);
+        GlStateManager.translate(xPos + 0.5f, yPos + (standing ? 0.4999f: 0f), zPos + 0.5f);
+        GlStateManager.rotate(angle, 0f, 1f, 0f);
+        GlStateManager.translate(0, 0, standing ? 8f/16f: -9f/16f);
+        GlStateManager.scale(-1.0F, -1.0F, 1.0F);
+
+        if (tileEntity.getWorld() != null) {
+            int i = tileEntity.getWorld().getCombinedLight(tileEntity.getPos(), 0);
             int j = i % 65536;
             int k = i / 65536;
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F * 0.95f, (float)k / 1.0F * 0.95f);
         }
 
+        bindTexture(playerSkin);
         headModel.render(null, 0.0F, 0.0F, 0.0F, 0f, 0.0F, 0.0625f);
-        GL11.glPopMatrix();
 
-        GL11.glPushMatrix();
-        GL11.glTranslated(xPos+0.5f, yPos+0.001d, zPos+0.5f);
-        GL11.glRotatef(angle, 0, 1, 0);
-        float texHeight = 32;
-        float texWidth = 64;
-        Tessellator tess = Tessellator.instance;
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.enableCull();
+        GlStateManager.popMatrix();
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(xPos+0.5f, yPos+0.001d, zPos+0.5f);
+        GlStateManager.rotate(angle, 0, 1, 0);
+
+        Tessellator tess = Tessellator.getInstance();
+        WorldRenderer wr = tess.getWorldRenderer();
         RenderHelper.disableStandardItemLighting();
 
         if (standing) {
-            GL11.glRotatef(90f, 1f, 0f, 0f);
-            GL11.glTranslatef(0f, 7f/16f, -1f/16f);
+            GlStateManager.rotate(90f, 1f, 0f, 0f);
+            GlStateManager.translate(0f, 7f/16f, -1f/16f);
         }
 
+        float texHeight = 64;
+        float texWidth = 64;
         float xOffset = 4f/16f-0.5f;
         float zOffset = 5f/16f-0.5f;
         float thickness = 1f/16f;
         float yOffset = 1f/16f;
-        tess.startDrawingQuads();
+        wr.func_181668_a(GL11.GL_QUADS, DefaultVertexFormats.field_181707_g);
 
         // Left Arm
         if (standing) {
@@ -112,82 +114,86 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
 
         tess.draw();
         RenderHelper.enableStandardItemLighting();
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glPopMatrix();
+        GlStateManager.enableLighting();
+        GlStateManager.popMatrix();
     }
 
     private void buildBodyPart(float xPos, float yPos, float zPos, float width, float depth, float length, float minU, float minV, float maxU, float maxV, float texWidth, float texHeight) {
-        Tessellator tess = Tessellator.instance;
+        WorldRenderer wr = Tessellator.getInstance().getWorldRenderer();
         float texDepth = depth*16f;
         // This if is used if texture should be rotated as width would be longer then length (used for arms)
         if (Math.abs(width) > Math.abs(length)) {
             // Draws base texture
-            tess.addVertexWithUV(xPos, yPos, zPos, minU, minV);
-            tess.addVertexWithUV(xPos, yPos, zPos+length, maxU, minV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos+length, maxU, maxV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos, minU, maxV);
+            addVertexWithUV(wr, xPos, yPos, zPos, minU, minV);
+            addVertexWithUV(wr, xPos, yPos, zPos+length, maxU, minV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos+length, maxU, maxV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos, minU, maxV);
 
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos, minU, maxV);
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos+length, maxU, maxV);
-            tess.addVertexWithUV(xPos, yPos-depth, zPos+length, maxU, minV);
-            tess.addVertexWithUV(xPos, yPos-depth, zPos, minU, minV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos, minU, maxV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos+length, maxU, maxV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos+length, maxU, minV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos, minU, minV);
 
             // Draws sides
-            tess.addVertexWithUV(xPos, yPos-depth, zPos, minU, minV+(texDepth/texHeight));
-            tess.addVertexWithUV(xPos, yPos-depth, zPos+length, maxU, minV+(texDepth/texHeight));
-            tess.addVertexWithUV(xPos, yPos, zPos+length, maxU, minV);
-            tess.addVertexWithUV(xPos, yPos, zPos, minU, minV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos, minU, minV+(texDepth/texHeight));
+            addVertexWithUV(wr, xPos, yPos-depth, zPos+length, maxU, minV+(texDepth/texHeight));
+            addVertexWithUV(wr, xPos, yPos, zPos+length, maxU, minV);
+            addVertexWithUV(wr, xPos, yPos, zPos, minU, minV);
 
             float uUpper = maxU + ((minU > maxU) ? (texDepth/texWidth) : -(texDepth/texWidth));
-            tess.addVertexWithUV(xPos, yPos-depth, zPos+length, uUpper, minV);
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos+length, uUpper, maxV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos+length, maxU, maxV);
-            tess.addVertexWithUV(xPos, yPos, zPos+length, maxU, minV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos+length, uUpper, minV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos+length, uUpper, maxV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos+length, maxU, maxV);
+            addVertexWithUV(wr, xPos, yPos, zPos+length, maxU, minV);
 
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos+length, maxU, maxV-(texDepth/texHeight));
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos, minU, maxV-(texDepth/texHeight));
-            tess.addVertexWithUV(xPos+width, yPos, zPos, minU, maxV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos+length, maxU, maxV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos+length, maxU, maxV-(texDepth/texHeight));
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos, minU, maxV-(texDepth/texHeight));
+            addVertexWithUV(wr, xPos+width, yPos, zPos, minU, maxV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos+length, maxU, maxV);
 
             uUpper = minU + ((minU < maxU) ? (texDepth/texWidth) : -(texDepth/texWidth));
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos, minU, maxV);
-            tess.addVertexWithUV(xPos, yPos-depth, zPos, minU, minV);
-            tess.addVertexWithUV(xPos, yPos, zPos, uUpper, minV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos, uUpper, maxV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos, minU, maxV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos, minU, minV);
+            addVertexWithUV(wr, xPos, yPos, zPos, uUpper, minV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos, uUpper, maxV);
         }
         else {
             // Draws base texture
-            tess.addVertexWithUV(xPos, yPos, zPos, minU, minV);
-            tess.addVertexWithUV(xPos, yPos, zPos+length, minU, maxV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos+length, maxU, maxV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos, maxU, minV);
+            addVertexWithUV(wr, xPos, yPos, zPos, minU, minV);
+            addVertexWithUV(wr, xPos, yPos, zPos+length, minU, maxV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos+length, maxU, maxV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos, maxU, minV);
 
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos, maxU, minV);
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos+length, maxU, maxV);
-            tess.addVertexWithUV(xPos, yPos-depth, zPos+length, minU, maxV);
-            tess.addVertexWithUV(xPos, yPos-depth, zPos, minU, minV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos, maxU, minV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos+length, maxU, maxV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos+length, minU, maxV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos, minU, minV);
 
             // Draws sides
             float uUpper = minU + ((minU < maxU) ? (texDepth/texWidth) : -(texDepth/texWidth));
-            tess.addVertexWithUV(xPos, yPos-depth, zPos, minU, minV);
-            tess.addVertexWithUV(xPos, yPos-depth, zPos+length, minU, maxV);
-            tess.addVertexWithUV(xPos, yPos, zPos+length, uUpper, maxV);
-            tess.addVertexWithUV(xPos, yPos, zPos, uUpper, minV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos, minU, minV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos+length, minU, maxV);
+            addVertexWithUV(wr, xPos, yPos, zPos+length, uUpper, maxV);
+            addVertexWithUV(wr, xPos, yPos, zPos, uUpper, minV);
 
-            tess.addVertexWithUV(xPos, yPos-depth, zPos+length, minU, maxV);
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos+length, maxU, maxV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos+length, maxU, maxV-(texDepth/texHeight));
-            tess.addVertexWithUV(xPos, yPos, zPos+length, minU, maxV-(texDepth/texHeight));
+            addVertexWithUV(wr, xPos, yPos-depth, zPos+length, minU, maxV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos+length, maxU, maxV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos+length, maxU, maxV-(texDepth/texHeight));
+            addVertexWithUV(wr, xPos, yPos, zPos+length, minU, maxV-(texDepth/texHeight));
 
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos+length, maxU, maxV);
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos, maxU, minV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos, maxU-(texDepth/texWidth), minV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos+length, maxU-(texDepth/texWidth), maxV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos+length, maxU, maxV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos, maxU, minV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos, maxU-(texDepth/texWidth), minV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos+length, maxU-(texDepth/texWidth), maxV);
 
-            tess.addVertexWithUV(xPos+width, yPos-depth, zPos, minU, minV+(texDepth/texHeight));
-            tess.addVertexWithUV(xPos, yPos-depth, zPos, maxU, minV+(texDepth/texHeight));
-            tess.addVertexWithUV(xPos, yPos, zPos, maxU, minV);
-            tess.addVertexWithUV(xPos+width, yPos, zPos, minU, minV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos, minU, minV+(texDepth/texHeight));
+            addVertexWithUV(wr, xPos, yPos-depth, zPos, maxU, minV+(texDepth/texHeight));
+            addVertexWithUV(wr, xPos, yPos, zPos, maxU, minV);
+            addVertexWithUV(wr, xPos+width, yPos, zPos, minU, minV);
         }
+    }
+    
+    private static void addVertexWithUV(WorldRenderer wr, float x, float y, float z, float u, float v) {
+        wr.func_181662_b(x, y, z).func_181673_a(u, v).func_181675_d();
     }
 }

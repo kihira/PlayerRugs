@@ -13,12 +13,13 @@ public class PlayerRugItem extends ItemBlock {
 
     public PlayerRugItem(Block block) {
         super(block);
+        setUnlocalizedName("playerRug");
     }
 
     @Override
     public void addInformation(ItemStack itemStack, EntityPlayer player, List list, boolean p_77624_4_) {
         if (itemStack.hasTagCompound()) {
-            GameProfile profile = NBTUtil.func_152459_a(itemStack.getTagCompound().getCompoundTag("PlayerProfile"));
+            GameProfile profile = NBTUtil.readGameProfileFromNBT(itemStack.getTagCompound().getCompoundTag("PlayerProfile"));
 
             list.add("Player: " + (profile != null ? profile.getName() : "None"));
         }

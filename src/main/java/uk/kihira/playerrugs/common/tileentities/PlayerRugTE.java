@@ -11,43 +11,51 @@ import net.minecraft.util.AxisAlignedBB;
 
 public class PlayerRugTE extends TileEntity {
 
-    public GameProfile playerProfile;
-
-    private AxisAlignedBB renderBox = AxisAlignedBB.getBoundingBox(-1f, 0f, -1f, 1f, 1f, 1f);
+    private GameProfile playerProfile;
 
     @Override
     public void readFromNBT(NBTTagCompound nbtTagCompound) {
         super.readFromNBT(nbtTagCompound);
 
-        playerProfile = NBTUtil.func_152459_a(nbtTagCompound.getCompoundTag("PlayerProfile"));
+        if (getTileData().hasKey("PlayerProfile")) {
+            setPlayerProfile(NBTUtil.readGameProfileFromNBT(getTileData().getCompoundTag("PlayerProfile")));
+        }
     }
 
     @Override
     public void writeToNBT(NBTTagCompound nbtTagCompound) {
-        super.writeToNBT(nbtTagCompound);
-
-        if (playerProfile != null) {
-            NBTTagCompound playerProfileTag = nbtTagCompound.getCompoundTag("PlayerProfile");
-            NBTUtil.func_152460_a(playerProfileTag, playerProfile);
-            nbtTagCompound.setTag("PlayerProfile", playerProfileTag);
+        if (getPlayerProfile() != null) {
+            NBTTagCompound playerProfileTag = getTileData().getCompoundTag("PlayerProfile");
+            NBTUtil.writeGameProfile(playerProfileTag, getPlayerProfile());
+            getTileData().setTag("PlayerProfile", playerProfileTag);
         }
+
+        super.writeToNBT(nbtTagCompound);
     }
 
     @Override
     public Packet getDescriptionPacket() {
         NBTTagCompound tagCompound = new NBTTagCompound();
         writeToNBT(tagCompound);
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 3, tagCompound);
+        return new S35PacketUpdateTileEntity(getPos(), 3, tagCompound);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-        NBTTagCompound tagCompound = pkt.func_148857_g();
+        NBTTagCompound tagCompound = pkt.getNbtCompound();
         readFromNBT(tagCompound);
     }
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return renderBox.copy().addCoord(xCoord, yCoord, zCoord);
+        return super.getRenderBoundingBox().expand(1,1,1);
+    }
+
+    public GameProfile getPlayerProfile() {
+        return playerProfile;
+    }
+
+    public void setPlayerProfile(GameProfile playerProfile) {
+        this.playerProfile = playerProfile;
     }
 }
