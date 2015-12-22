@@ -16,6 +16,8 @@ import net.minecraft.world.World;
 import uk.kihira.playerrugs.PlayerRugs;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 
+import java.util.ArrayList;
+
 public class PlayerRugBlock extends BlockContainer {
 
     public PlayerRugBlock() {
@@ -49,7 +51,14 @@ public class PlayerRugBlock extends BlockContainer {
 
         // Set rotation
         int rot = MathHelper.floor_float(entity.rotationYaw*4f/360f+0.5f) & 3;
-        world.setBlockMetadataWithNotify(xPos, yPos, zPos, rot + 4, 3);
+        world.setBlockMetadataWithNotify(xPos, yPos, zPos, world.getBlockMetadata(xPos, yPos, zPos) + rot, 3);
+    }
+
+    @Override
+    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
+        ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
+        drops.add(PlayerRugs.INSTANCE.getPlayerRugStack(((PlayerRugTE) world.getTileEntity(x, y, z)).playerProfile));
+        return drops;
     }
 
     @Override
@@ -107,9 +116,14 @@ public class PlayerRugBlock extends BlockContainer {
         float zLength = 0f;
         float xOffset = 0f;
         float zOffset = 0f;
-        float yOffset = 0f;
-        float yLength = 1/16f;
-        switch (world.getBlockMetadata(xPos, yPos, zPos)){
+        float yOffset = -7.5f/16f;
+        float yLength = 1f;
+        int meta = world.getBlockMetadata(xPos, yPos, zPos);
+        if (meta >= 4) {
+            yLength = 12f;
+            yOffset = -6f/16f;
+        }
+        switch (meta){
             case 0:
                 xLength = 8f;
                 zLength = 24f;
@@ -133,30 +147,22 @@ public class PlayerRugBlock extends BlockContainer {
             case 4:
                 xLength = 8f;
                 zLength = 1f;
-                yLength = 12f;
-                yOffset = -6f/16f;
                 zOffset += 7.5f/16f;
                 break;
             case 5:
                 xLength = 1f;
                 zLength = 8f;
-                yLength = 12f;
-                yOffset = -6f/16f;
                 xOffset -= 7.5f/16f;
                 break;
             case 6:
                 xLength = 8f;
                 zLength = 1f;
-                yLength = 12f;
-                yOffset = -6f/16f;
                 zOffset -= 7.5f/16f;
                 break;
             case 7:
                 xLength = 1f;
                 zLength = 8f;
                 xOffset += 7.5f/16f;
-                yLength = 12f;
-                yOffset = -6f/16f;
                 break;
         }
         zOffset += zPos+0.5f;
@@ -168,6 +174,11 @@ public class PlayerRugBlock extends BlockContainer {
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player) {
         return PlayerRugs.INSTANCE.getPlayerRugStack(((PlayerRugTE) world.getTileEntity(x, y, z)).playerProfile);
+    }
+
+    @Override
+    public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int meta) {
+        return side >= 2 && side <= 5 ? 4 : 0;
     }
 
     @Override

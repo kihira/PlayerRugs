@@ -37,7 +37,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
 
         // Render head
         GL11.glPushMatrix();
-        GL11.glTranslated(xPos + 0.5f, yPos + (standing ? 0.5f: 0f), zPos + 0.5f);
+        GL11.glTranslated(xPos + 0.5f, yPos + (standing ? 0.4999f: 0f), zPos + 0.5f);
         GL11.glRotatef(angle, 0f, 1f, 0f);
         GL11.glTranslated(0, 0, standing ? 8f/16f: -9f/16f);
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
@@ -50,7 +50,6 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         GL11.glPushMatrix();
         GL11.glTranslated(xPos+0.5f, yPos+0.001d, zPos+0.5f);
         GL11.glRotatef(angle, 0, 1, 0);
-        //GL11.glScalef(1.2f, 1f, 1.2f);
         float texHeight = 32;
         float texWidth = 64;
         Tessellator tess = Tessellator.instance;
