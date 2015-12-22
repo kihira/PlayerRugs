@@ -69,12 +69,13 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
             GL11.glTranslatef(0f, 7f/16f, -1f/16f);
         }
 
-        // Left Arm
         float xOffset = 4f/16f-0.5f;
         float zOffset = 5f/16f-0.5f;
         float thickness = 1f/16f;
         float yOffset = 1f/16f;
         tess.startDrawingQuads();
+
+        // Left Arm
         if (standing) {
             xOffset = -0.5f;
             zOffset = 1f/16f-0.5f;
@@ -88,7 +89,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         xOffset = 12f/16f-0.5f;
         zOffset = 1f/16f-0.5f;
         if (standing) {
-            buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 48f/texWidth, 20f/texHeight, 52f/texWidth, 32f/texHeight, texWidth, texHeight);
+            buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 48f/texWidth, 20f/texHeight, 44f/texWidth, 32f/texHeight, texWidth, texHeight);
         }
         else {
             buildBodyPart(xOffset, yOffset, zOffset, 12f/16f, thickness, 4f/16f, 56f/texWidth, 20f/texHeight, 52f/texWidth, 32f/texHeight, texWidth, texHeight);
