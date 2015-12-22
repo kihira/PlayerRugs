@@ -98,17 +98,17 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer {
         // Body
         xOffset = 0.25f-0.5f;
         zOffset = 1f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 8f/16f, thickness, 12f/16f, (standing ? 20f : 32f)/texWidth, 20f/texHeight, (standing ? 28f : 40f)/texWidth, 32f/texHeight, texWidth, texHeight);
+        buildBodyPart(xOffset, yOffset, zOffset, 8f/16f, thickness, 12f/16f, (standing ? 28f : 32f)/texWidth, 20f/texHeight, (standing ? 20f : 40f)/texWidth, 32f/texHeight, texWidth, texHeight);
 
         // Left Leg
         xOffset = 0.25f-0.5f;
         zOffset = 13f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, (standing ? 8f : 16f)/texWidth, 20f/texHeight, (standing ? 4f : 12f)/texWidth, 32f/texHeight, texWidth, texHeight);
+        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, (standing ? 4f : 16f)/texWidth, 20f/texHeight, (standing ? 8f : 12f)/texWidth, 32f/texHeight, texWidth, texHeight);
 
         // Right Leg
         xOffset = 0.5f-0.5f;
         zOffset = 13f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, (standing ? 4f : 12f)/texWidth, 20f/texHeight, (standing ? 8f : 16f)/texWidth, 32f/texHeight, texWidth, texHeight);
+        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, (standing ? 8f : 12f)/texWidth, 20f/texHeight, (standing ? 4f : 16f)/texWidth, 32f/texHeight, texWidth, texHeight);
 
         tess.draw();
         RenderHelper.enableStandardItemLighting();
