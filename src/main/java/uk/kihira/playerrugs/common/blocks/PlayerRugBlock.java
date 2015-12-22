@@ -2,6 +2,7 @@ package uk.kihira.playerrugs.common.blocks;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
@@ -22,10 +24,8 @@ public class PlayerRugBlock extends BlockContainer {
 
     public PlayerRugBlock() {
         super(Material.cloth);
-        setBlockName("playerRug");
         setCreativeTab(CreativeTabs.tabBlock);
         setStepSound(soundTypeCloth);
-        setBlockTextureName("stone");
     }
 
     @Override
@@ -44,9 +44,9 @@ public class PlayerRugBlock extends BlockContainer {
     }
 
     @Override
-    public void onBlockPlacedBy(World world, int xPos, int yPos, int zPos, EntityLivingBase entity, ItemStack itemStack) {
-        if (itemStack.hasTagCompound()) {
-            ((PlayerRugTE) world.getTileEntity(xPos, yPos, zPos)).playerProfile = NBTUtil.func_152459_a(itemStack.getTagCompound().getCompoundTag("PlayerProfile"));
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity, ItemStack stack) {
+        if (stack.hasTagCompound()) {
+            ((PlayerRugTE) world.getTileEntity(pos)).playerProfile = NBTUtil.readGameProfileFromNBT(stack.getTagCompound().getCompoundTag("PlayerProfile"));
         }
 
         // Set rotation

@@ -1,8 +1,8 @@
 package uk.kihira.playerrugs.proxy;
 
-import cpw.mods.fml.client.registry.ClientRegistry;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import uk.kihira.playerrugs.PlayerRugs;
 import uk.kihira.playerrugs.client.PlayerRugItemRenderer;
 import uk.kihira.playerrugs.client.PlayerRugTESR;
