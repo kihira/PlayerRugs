@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.RecipeSorter;
 import uk.kihira.playerrugs.common.PlayerRugCommand;
 import uk.kihira.playerrugs.common.PlayerRugRecipe;
 import uk.kihira.playerrugs.common.blocks.PlayerRugBlock;
@@ -41,6 +42,7 @@ public class PlayerRugs {
 
         MinecraftForge.EVENT_BUS.register(this);
 
+        RecipeSorter.register("playerrugs:rug", PlayerRugRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         GameRegistry.addRecipe(new PlayerRugRecipe());
     }
 
