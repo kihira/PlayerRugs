@@ -1,12 +1,6 @@
 package uk.kihira.playerrugs;
 
 import com.mojang.authlib.GameProfile;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -15,6 +9,13 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.RecipeSorter;
 import uk.kihira.playerrugs.common.PlayerRugCommand;
 import uk.kihira.playerrugs.common.PlayerRugRecipe;
 import uk.kihira.playerrugs.common.blocks.PlayerRugBlock;
@@ -42,6 +43,7 @@ public class PlayerRugs {
 
         MinecraftForge.EVENT_BUS.register(this);
 
+        RecipeSorter.register("playerrugs:rug", PlayerRugRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         GameRegistry.addRecipe(new PlayerRugRecipe());
     }
 
@@ -65,7 +67,7 @@ public class PlayerRugs {
         NBTTagCompound playerProfileTag = new NBTTagCompound();
 
         if (profile != null) {
-            NBTUtil.func_152460_a(playerProfileTag, profile);
+            NBTUtil.writeGameProfile(playerProfileTag, profile);
         }
         tagCompound.setTag("PlayerProfile", playerProfileTag);
         itemStack.setTagCompound(tagCompound);
