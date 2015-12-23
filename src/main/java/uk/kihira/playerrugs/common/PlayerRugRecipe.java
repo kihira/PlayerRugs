@@ -8,6 +8,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
 import uk.kihira.playerrugs.PlayerRugs;
 
 public class PlayerRugRecipe implements IRecipe {
@@ -43,6 +44,18 @@ public class PlayerRugRecipe implements IRecipe {
         return null;
     }
 
+    @Override
+    public ItemStack[] getRemainingItems(InventoryCrafting inv) {
+        ItemStack[] remainingItems = new ItemStack[inv.getSizeInventory()];
+
+        for (int i = 0; i < remainingItems.length; ++i) {
+            ItemStack itemstack = inv.getStackInSlot(i);
+            remainingItems[i] = ForgeHooks.getContainerItem(itemstack);
+        }
+
+        return remainingItems;
+    }
+
     private boolean checkLeather(ItemStack itemStack) {
         return itemStack != null && itemStack.getItem() == Items.leather;
     }
@@ -55,7 +68,7 @@ public class PlayerRugRecipe implements IRecipe {
         NBTTagCompound nbttagcompound = stack.getTagCompound();
 
         if (nbttagcompound.hasKey("SkullOwner", 10)) {
-            playerProfile = NBTUtil.func_152459_a(nbttagcompound.getCompoundTag("SkullOwner"));
+            playerProfile = NBTUtil.readGameProfileFromNBT(nbttagcompound.getCompoundTag("SkullOwner"));
         }
         // Old version skulls
         else if (nbttagcompound.hasKey("SkullOwner", 8) && nbttagcompound.getString("SkullOwner").length() > 0) {
