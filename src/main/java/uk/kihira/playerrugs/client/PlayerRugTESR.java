@@ -1,6 +1,7 @@
 package uk.kihira.playerrugs.client;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelHumanoidHead;
 import net.minecraft.client.renderer.*;
@@ -9,6 +10,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
+import uk.kihira.playerrugs.common.blocks.PlayerRugBlock;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 
 public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
@@ -19,15 +21,30 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
 
     @Override
     public void renderTileEntityAt(PlayerRugTE tileEntity, double xPos, double yPos, double zPos, float partialTicks, int destroyStage) {
+        GameProfile profile;
+        ResourceLocation playerSkin;
+        IBlockState state;
+        float angle;
+        boolean standing;
+
         // Fix for inventory rendering
         if (tileEntity == null) {
-            tileEntity = fakeTileEntity;
+            profile = null;
+            angle = 0;
+            standing = false;
         }
-        GameProfile profile = tileEntity.getPlayerProfile();
-        ResourceLocation playerSkin;
-        float angle = tileEntity == fakeTileEntity ? 0 : tileEntity.getBlockMetadata()*-90f;
-        boolean standing = tileEntity != fakeTileEntity && tileEntity.getBlockMetadata() >= 4;
+        else {
+            profile = tileEntity.getPlayerProfile();
+            state = tileEntity.getWorld().getBlockState(tileEntity.getPos());
+            angle = (state.getValue(PlayerRugBlock.FACING).getHorizontalIndex()+2)*-90f;
+            standing = state.getValue(PlayerRugBlock.STANDING);
 
+            // Darken light map
+            int i = tileEntity.getWorld().getCombinedLight(tileEntity.getPos(), 0);
+            int j = i % 65536;
+            int k = i / 65536;
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F * 0.95f, (float)k / 1.0F * 0.95f);
+        }
 
         if (profile != null) {
             playerSkin = AbstractClientPlayer.getLocationSkin(profile.getName());
@@ -48,13 +65,6 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
         GlStateManager.rotate(angle, 0f, 1f, 0f);
         GlStateManager.translate(0, 0, standing ? 8f/16f: -9f/16f);
         GlStateManager.scale(-1.0F, -1.0F, 1.0F);
-
-        if (tileEntity.getWorld() != null) {
-            int i = tileEntity.getWorld().getCombinedLight(tileEntity.getPos(), 0);
-            int j = i % 65536;
-            int k = i / 65536;
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F * 0.95f, (float)k / 1.0F * 0.95f);
-        }
 
         bindTexture(playerSkin);
         headModel.render(null, 0.0F, 0.0F, 0.0F, 0f, 0.0F, 0.0625f);

@@ -16,7 +16,6 @@ public class PlayerRugTE extends TileEntity {
     @Override
     public void readFromNBT(NBTTagCompound nbtTagCompound) {
         super.readFromNBT(nbtTagCompound);
-
         if (getTileData().hasKey("PlayerProfile")) {
             setPlayerProfile(NBTUtil.readGameProfileFromNBT(getTileData().getCompoundTag("PlayerProfile")));
         }
@@ -24,12 +23,12 @@ public class PlayerRugTE extends TileEntity {
 
     @Override
     public void writeToNBT(NBTTagCompound nbtTagCompound) {
+        super.writeToNBT(nbtTagCompound);
         if (getPlayerProfile() != null) {
             NBTTagCompound playerProfileTag = getTileData().getCompoundTag("PlayerProfile");
             NBTUtil.writeGameProfile(playerProfileTag, getPlayerProfile());
             getTileData().setTag("PlayerProfile", playerProfileTag);
         }
-
         super.writeToNBT(nbtTagCompound);
     }
 
@@ -48,7 +47,7 @@ public class PlayerRugTE extends TileEntity {
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return super.getRenderBoundingBox().expand(1,1,1);
+        return new AxisAlignedBB(getPos().add(-1, -1, -1), getPos().add(1, 1, 1));
     }
 
     public GameProfile getPlayerProfile() {

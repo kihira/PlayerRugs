@@ -54,12 +54,7 @@ public class PlayerRugBlock extends BlockContainer {
 
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity, ItemStack stack) {
-        // Set rotation
-        EnumFacing enumfacing = entity.getHorizontalFacing().getOpposite();
-        state = state.withProperty(FACING, enumfacing);
-        state = state.withProperty(STANDING, false);
-        world.setBlockState(pos, state, 3);
-
+        // State is already set in onBlockPlaced so we don't need to change the state here
         if (stack.hasTagCompound()) {
             ((PlayerRugTE) world.getTileEntity(pos)).setPlayerProfile(NBTUtil.readGameProfileFromNBT(stack.getSubCompound("PlayerProfile", false)));
         }
@@ -81,14 +76,14 @@ public class PlayerRugBlock extends BlockContainer {
     @Override
     public void setBlockBoundsBasedOnState(IBlockAccess world, BlockPos pos) {
         IBlockState state = world.getBlockState(pos);
-        if (state.getBlock().isAir(world, pos)) {
+        if (!(state.getBlock() instanceof PlayerRugBlock)) {
             return;
         }
-        if (state.getPropertyNames().contains(STANDING) && state.getValue(STANDING)) {
+        if (state.getValue(STANDING)) {
             minY = 0;
             maxY = 1f;
-            if (state.getValue(FACING).getIndex() % 2 != 0) {
-                if (state.getValue(FACING).getIndex() == 5) {
+            if (state.getValue(FACING).getHorizontalIndex() % 2 != 0) {
+                if (state.getValue(FACING) == EnumFacing.EAST) {
                     minX = 0f;
                     maxX = 1f/16f;
                 }
@@ -100,7 +95,7 @@ public class PlayerRugBlock extends BlockContainer {
                 maxZ = 12f/16f;
             }
             else {
-                if (state.getValue(FACING).getIndex() == 6) {
+                if (state.getValue(FACING) == EnumFacing.SOUTH) {
                     minZ = 0f;
                     maxZ = 1f/16f;
                 }
@@ -113,7 +108,7 @@ public class PlayerRugBlock extends BlockContainer {
             }
         }
         else {
-            if (state.getValue(FACING).getIndex() % 2 != 0) {
+            if (state.getValue(FACING).getHorizontalIndex() % 2 != 0) {
                 minX = 0f;
                 minZ = 0.2f;
                 maxX = 1f;
@@ -138,52 +133,51 @@ public class PlayerRugBlock extends BlockContainer {
         float zOffset = 0f;
         float yOffset = -7.5f/16f;
         float yLength = 1f;
-        //int meta = world.getBlockMetadata(xPos, yPos, zPos);
         IBlockState state = world.getBlockState(pos);
         if (state.getValue(STANDING)) {
             yLength = 12f;
             yOffset = -6f/16f;
         }
-        switch (state.getValue(FACING).getIndex()){
+        switch (state.getValue(FACING).getHorizontalIndex() + (state.getValue(STANDING) ? 4 : 0)){
             case 0:
-                xLength = 8f;
-                zLength = 24f;
-                zOffset += 5f/16f;
-                break;
-            case 1:
-                xLength = 24f;
-                zLength = 8f;
-                xOffset -= 5f/16f;
-                break;
-            case 2:
                 xLength = 8f;
                 zLength = 24f;
                 zOffset -= 5f/16f;
                 break;
-            case 3:
+            case 1:
                 xLength = 24f;
                 zLength = 8f;
                 xOffset += 5f/16f;
                 break;
-            case 4:
+            case 2:
                 xLength = 8f;
-                zLength = 1f;
-                zOffset += 7.5f/16f;
+                zLength = 24f;
+                zOffset += 5f/16f;
                 break;
-            case 5:
-                xLength = 1f;
+            case 3:
+                xLength = 24f;
                 zLength = 8f;
-                xOffset -= 7.5f/16f;
+                xOffset -= 5f/16f;
                 break;
-            case 6:
+            case 4:
                 xLength = 8f;
                 zLength = 1f;
                 zOffset -= 7.5f/16f;
                 break;
-            case 7:
+            case 5:
                 xLength = 1f;
                 zLength = 8f;
                 xOffset += 7.5f/16f;
+                break;
+            case 6:
+                xLength = 8f;
+                zLength = 1f;
+                zOffset += 7.5f/16f;
+                break;
+            case 7:
+                xLength = 1f;
+                zLength = 8f;
+                xOffset -= 7.5f/16f;
                 break;
         }
         zOffset += pos.getZ()+0.5f;
@@ -199,24 +193,18 @@ public class PlayerRugBlock extends BlockContainer {
 
     @Override
     public IBlockState onBlockPlaced(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
-        return getDefaultState().withProperty(FACING, placer.getHorizontalFacing()).withProperty(STANDING, facing.getAxis() == EnumFacing.Axis.Y);
+        return getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite()).withProperty(STANDING, facing.getAxis() != EnumFacing.Axis.Y);
     }
 
     /**
      * Convert the given metadata into a BlockState for this Block
      */
     public IBlockState getStateFromMeta(int meta) {
-        EnumFacing enumfacing = EnumFacing.getFront(meta);
-
-        if (enumfacing.getAxis() == EnumFacing.Axis.Y) {
-            enumfacing = EnumFacing.NORTH;
-        }
-
-        return getDefaultState().withProperty(FACING, enumfacing).withProperty(STANDING, meta >= 4);
+        return getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta % 4)).withProperty(STANDING, meta >= 4);
     }
 
     public int getMetaFromState(IBlockState state) {
-        return state.getValue(FACING).getIndex() + (state.getValue(STANDING) ? 4 : 0);
+        return state.getValue(FACING).getHorizontalIndex() + (state.getValue(STANDING) ? 4 : 0);
     }
 
     protected BlockState createBlockState() {
