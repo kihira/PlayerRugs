@@ -15,12 +15,19 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
 
     public ModelHumanoidHead headModel = new ModelHumanoidHead();
 
+    private PlayerRugTE fakeTileEntity = new PlayerRugTE();
+
     @Override
     public void renderTileEntityAt(PlayerRugTE tileEntity, double xPos, double yPos, double zPos, float partialTicks, int destroyStage) {
+        // Fix for inventory rendering
+        if (tileEntity == null) {
+            tileEntity = fakeTileEntity;
+        }
         GameProfile profile = tileEntity.getPlayerProfile();
         ResourceLocation playerSkin;
-        float angle = tileEntity.getBlockMetadata()*-90f;
-        boolean standing = tileEntity.getBlockMetadata() >= 4;
+        float angle = tileEntity == fakeTileEntity ? 0 : tileEntity.getBlockMetadata()*-90f;
+        boolean standing = tileEntity != fakeTileEntity && tileEntity.getBlockMetadata() >= 4;
+
 
         if (profile != null) {
             playerSkin = AbstractClientPlayer.getLocationSkin(profile.getName());

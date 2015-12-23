@@ -11,7 +11,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -40,15 +39,12 @@ public class PlayerRugs {
         GameRegistry.registerBlock(playerRugBlock = new PlayerRugBlock(), PlayerRugItem.class, "playerRug");
         GameRegistry.registerTileEntity(PlayerRugTE.class, "playerRug");
 
+        proxy.registerRenderers();
+
         MinecraftForge.EVENT_BUS.register(this);
 
         RecipeSorter.register("playerrugs:rug", PlayerRugRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
         GameRegistry.addRecipe(new PlayerRugRecipe());
-    }
-
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent e) {
-        proxy.registerRenderers();
     }
 
     @Mod.EventHandler
