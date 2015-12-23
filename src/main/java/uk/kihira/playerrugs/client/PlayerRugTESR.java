@@ -1,31 +1,36 @@
 package uk.kihira.playerrugs.client;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelHumanoidHead;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import uk.kihira.playerrugs.common.blocks.PlayerRugBlock;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
 
     public ModelHumanoidHead headModel = new ModelHumanoidHead();
-
-    private PlayerRugTE fakeTileEntity = new PlayerRugTE();
+    public static final float pWidth = 14/16f; // Width of a pixel in game units
 
     @Override
     public void renderTileEntityAt(PlayerRugTE tileEntity, double xPos, double yPos, double zPos, float partialTicks, int destroyStage) {
         GameProfile profile;
-        ResourceLocation playerSkin;
+        ResourceLocation playerSkin = DefaultPlayerSkin.getDefaultSkinLegacy();
         IBlockState state;
         float angle;
         boolean standing;
+        boolean slimModel = false;
 
         // Fix for inventory rendering
         if (tileEntity == null) {
@@ -47,11 +52,19 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
         }
 
         if (profile != null) {
-            playerSkin = AbstractClientPlayer.getLocationSkin(profile.getName());
-            AbstractClientPlayer.getDownloadImageSkin(playerSkin, profile.getName());
-        }
-        else {
-            playerSkin = DefaultPlayerSkin.getDefaultSkinLegacy();
+            Minecraft minecraft = Minecraft.getMinecraft();
+            Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> map = minecraft.getSkinManager().loadSkinFromCache(profile);
+
+            if (map.containsKey(MinecraftProfileTexture.Type.SKIN)) {
+                playerSkin = minecraft.getSkinManager().loadSkin(map.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN);
+                String meta = map.get(MinecraftProfileTexture.Type.SKIN).getMetadata("model");
+                slimModel = meta != null && meta.equals("slim");
+            }
+            else {
+                UUID uuid = EntityPlayer.getUUID(profile);
+                playerSkin = DefaultPlayerSkin.getDefaultSkin(uuid);
+                slimModel = DefaultPlayerSkin.getSkinType(uuid).equals("slim");
+            }
         }
 
         // Render head
@@ -98,36 +111,64 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
         if (standing) {
             xOffset = -0.5f;
             zOffset = 1f/16f-0.5f;
-            buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 44f/texWidth, 20f/texHeight, 48f/ texWidth, 32f/texHeight, texWidth, texHeight);
+            buildBodyPart(
+                    xOffset+(slimModel?1f/16f:0f), yOffset, zOffset,
+                    (slimModel?3f:4f)/16f, thickness, 12f/16f,
+                    (slimModel?39f:48f)/texWidth, 52f/texHeight, (slimModel?36f:44f)/texWidth, 64f/texHeight,
+                    texWidth, texHeight);
         }
         else {
-            buildBodyPart(xOffset, yOffset, zOffset, -12f/16f, thickness, -4f/16f, 52f/ texWidth, 20f/texHeight, 56f/texWidth, 32f/texHeight, texWidth, texHeight);
+            buildBodyPart(
+                    xOffset, yOffset, zOffset-(slimModel?1f/16f:0f),
+                    -12f/16f, thickness, -(slimModel?3f:4f)/16f,
+                    (slimModel?46f:48f)/texWidth, 52f/texHeight, (slimModel?43f:44f)/texWidth, 64f/texHeight,
+                    texWidth, texHeight);
         }
 
         // Right Arm
         xOffset = 12f/16f-0.5f;
         zOffset = 1f/16f-0.5f;
         if (standing) {
-            buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, 48f/texWidth, 20f/texHeight, 44f/texWidth, 32f/texHeight, texWidth, texHeight);
+            buildBodyPart(
+                    xOffset, yOffset, zOffset,
+                    (slimModel?3f:4f)/16f, thickness, 12f/16f,
+                    (slimModel?47f:48f)/texWidth, 20f/texHeight, 44f/texWidth, 32f/texHeight,
+                    texWidth, texHeight);
         }
         else {
-            buildBodyPart(xOffset, yOffset, zOffset, 12f/16f, thickness, 4f/16f, 56f/texWidth, 20f/texHeight, 52f/texWidth, 32f/texHeight, texWidth, texHeight);
+            buildBodyPart(
+                    xOffset, yOffset, zOffset,
+                    12f/16f, thickness, (slimModel?3f:4f)/16f,
+                    (slimModel?54f:56f)/texWidth, 20f/texHeight, (slimModel?51f:52f)/texWidth, 32f/texHeight,
+                    texWidth, texHeight);
         }
 
         // Body
         xOffset = 0.25f-0.5f;
         zOffset = 1f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 8f/16f, thickness, 12f/16f, (standing ? 20f : 32f)/texWidth, 20f/texHeight, (standing ? 28f : 40f)/texWidth, 32f/texHeight, texWidth, texHeight);
+        buildBodyPart(
+                xOffset, yOffset, zOffset,
+                8f/16f, thickness, 12f/16f,
+                (standing?28f:32f)/texWidth, 20f/texHeight, (standing?20f:40f)/texWidth, 32f/texHeight,
+                texWidth, texHeight);
 
         // Left Leg
         xOffset = 0.25f-0.5f;
         zOffset = 13f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, (standing ? 8f : 16f)/texWidth, 20f/texHeight, (standing ? 4f : 12f)/texWidth, 32f/texHeight, texWidth, texHeight);
+        buildBodyPart(
+                xOffset, yOffset, zOffset,
+                4f/16f, thickness, 12f/16f,
+                (standing?20f:28f)/texWidth, 52f/texHeight, (standing?24f:32f)/texWidth, 64f/texHeight,
+                texWidth, texHeight);
 
         // Right Leg
         xOffset = 0.5f-0.5f;
         zOffset = 13f/16f-0.5f;
-        buildBodyPart(xOffset, yOffset, zOffset, 4f/16f, thickness, 12f/16f, (standing ? 4f : 12f)/texWidth, 20f/texHeight, (standing ? 8f : 16f)/texWidth, 32f/texHeight, texWidth, texHeight);
+        buildBodyPart(
+                xOffset, yOffset, zOffset,
+                4f/16f, thickness, 12f/16f,
+                (standing ? 4f : 12f)/texWidth, 20f/texHeight, (standing ? 8f : 16f)/texWidth, 32f/texHeight,
+                texWidth, texHeight);
 
         tess.draw();
         RenderHelper.enableStandardItemLighting();
@@ -203,10 +244,10 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
             addVertexWithUV(wr, xPos+width, yPos, zPos, maxU-(texDepth/texWidth), minV);
             addVertexWithUV(wr, xPos+width, yPos, zPos+length, maxU-(texDepth/texWidth), maxV);
 
-            addVertexWithUV(wr, xPos+width, yPos-depth, zPos, minU, minV+(texDepth/texHeight));
-            addVertexWithUV(wr, xPos, yPos-depth, zPos, maxU, minV+(texDepth/texHeight));
-            addVertexWithUV(wr, xPos, yPos, zPos, maxU, minV);
-            addVertexWithUV(wr, xPos+width, yPos, zPos, minU, minV);
+            addVertexWithUV(wr, xPos+width, yPos-depth, zPos, maxU, minV);
+            addVertexWithUV(wr, xPos, yPos-depth, zPos, minU, minV);
+            addVertexWithUV(wr, xPos, yPos, zPos, minU, minV+(texDepth/texHeight));
+            addVertexWithUV(wr, xPos+width, yPos, zPos, maxU, minV+(texDepth/texHeight));
         }
     }
     

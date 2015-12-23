@@ -7,6 +7,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.AxisAlignedBB;
 
 public class PlayerRugTE extends TileEntity {
@@ -17,7 +18,7 @@ public class PlayerRugTE extends TileEntity {
     public void readFromNBT(NBTTagCompound nbtTagCompound) {
         super.readFromNBT(nbtTagCompound);
         if (getTileData().hasKey("PlayerProfile")) {
-            setPlayerProfile(NBTUtil.readGameProfileFromNBT(getTileData().getCompoundTag("PlayerProfile")));
+            playerProfile = NBTUtil.readGameProfileFromNBT(getTileData().getCompoundTag("PlayerProfile"));
         }
     }
 
@@ -56,5 +57,7 @@ public class PlayerRugTE extends TileEntity {
 
     public void setPlayerProfile(GameProfile playerProfile) {
         this.playerProfile = playerProfile;
+        this.playerProfile = TileEntitySkull.updateGameprofile(this.playerProfile);
+        this.markDirty();
     }
 }
