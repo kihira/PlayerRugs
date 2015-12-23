@@ -114,7 +114,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
             buildBodyPart(
                     xOffset+(slimModel?1f/16f:0f), yOffset, zOffset,
                     (slimModel?3f:4f)/16f, thickness, 12f/16f,
-                    (slimModel?39f:48f)/texWidth, 52f/texHeight, (slimModel?36f:44f)/texWidth, 64f/texHeight,
+                    (slimModel?39f:40f)/texWidth, 52f/texHeight, 36f/texWidth, 64f/texHeight,
                     texWidth, texHeight);
         }
         else {
