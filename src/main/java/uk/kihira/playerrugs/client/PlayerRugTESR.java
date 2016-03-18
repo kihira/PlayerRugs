@@ -6,8 +6,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelHumanoidHead;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.*;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -91,7 +92,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
         GlStateManager.rotate(angle, 0, 1, 0);
 
         Tessellator tess = Tessellator.getInstance();
-        WorldRenderer wr = tess.getWorldRenderer();
+        VertexBuffer wr = tess.getBuffer();
         RenderHelper.disableStandardItemLighting();
 
         if (standing) {
@@ -105,7 +106,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
         float zOffset = 5f/16f-0.5f;
         float thickness = 1f/16f;
         float yOffset = 1f/16f;
-        wr.func_181668_a(GL11.GL_QUADS, DefaultVertexFormats.field_181707_g);
+        wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
         // Left Arm
         if (standing) {
@@ -177,7 +178,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
     }
 
     private void buildBodyPart(float xPos, float yPos, float zPos, float width, float depth, float length, float minU, float minV, float maxU, float maxV, float texWidth, float texHeight) {
-        WorldRenderer wr = Tessellator.getInstance().getWorldRenderer();
+        VertexBuffer wr = Tessellator.getInstance().getBuffer();
         float texDepth = depth*16f;
         // This if is used if texture should be rotated as width would be longer then length (used for arms)
         if (Math.abs(width) > Math.abs(length)) {
@@ -251,7 +252,7 @@ public class PlayerRugTESR extends TileEntitySpecialRenderer<PlayerRugTE> {
         }
     }
     
-    private static void addVertexWithUV(WorldRenderer wr, float x, float y, float z, float u, float v) {
-        wr.func_181662_b(x, y, z).func_181673_a(u, v).func_181675_d();
+    private static void addVertexWithUV(VertexBuffer wr, float x, float y, float z, float u, float v) {
+        wr.pos(x, y, z).tex(u, v).endVertex();
     }
 }
