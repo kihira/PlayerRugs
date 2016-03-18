@@ -61,9 +61,19 @@ public class PlayerRugBlock extends BlockContainer {
     }
 
     @Override
+    public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player)
+    {
+        dropBlockAsItem(worldIn, pos, state, 0);
+        super.onBlockHarvested(worldIn, pos, state, player);
+    }
+
+    @Override
     public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
         ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
-        drops.add(PlayerRugs.INSTANCE.getPlayerRugStack(((PlayerRugTE) world.getTileEntity(pos)).getPlayerProfile()));
+        TileEntity tileentity = world.getTileEntity(pos);
+        if (tileentity instanceof PlayerRugTE) {
+            drops.add(PlayerRugs.INSTANCE.getPlayerRugStack(((PlayerRugTE) world.getTileEntity(pos)).getPlayerProfile()));
+        }
         return drops;
     }
 
