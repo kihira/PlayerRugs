@@ -67,15 +67,15 @@ public class PlayerRugs {
 
     @SubscribeEvent
     public void onConfigChange(ConfigChangedEvent e) {
-        if (e.modID.equals("playerrugs")) {
+        if (e.getModID().equals("playerrugs")) {
             loadConfig();
         }
     }
 
     @SubscribeEvent
     public void onDeath(LivingDeathEvent e) {
-        if (e.entityLiving instanceof EntityPlayer && e.source == DamageSource.anvil) {
-            EntityPlayer player = (EntityPlayer) e.entityLiving;
+        if (e.getEntity() instanceof EntityPlayer && e.getSource() == DamageSource.anvil) {
+            EntityPlayer player = (EntityPlayer) e.getEntity();
             ItemStack itemStack = getPlayerRugStack(player.getGameProfile());
             player.worldObj.spawnEntityInWorld(new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, itemStack));
         }
@@ -83,13 +83,13 @@ public class PlayerRugs {
 
     @SubscribeEvent
     public void onAnvilRepair(AnvilRepairEvent e) {
-        ItemStack stack = e.output;
+        ItemStack stack = e.getOutput();
         if (Block.getBlockFromItem(stack.getItem()) instanceof PlayerRugBlock && stack.hasDisplayName()) {
             NBTTagCompound tagCompound = stack.getTagCompound() != null ? stack.getTagCompound() : new NBTTagCompound();
             NBTTagCompound playerTag = stack.getSubCompound("PlayerProfile", true);
-            NBTUtil.writeGameProfile(playerTag, e.entityPlayer.getServer().getPlayerProfileCache().getGameProfileForUsername(stack.getDisplayName()));
+            NBTUtil.writeGameProfile(playerTag, e.getEntityLiving().getServer().getPlayerProfileCache().getGameProfileForUsername(stack.getDisplayName()));
             tagCompound.setTag("PlayerProfile", playerTag);
-            e.output.setTagCompound(tagCompound);
+            e.getOutput().setTagCompound(tagCompound);
         }
     }
 
