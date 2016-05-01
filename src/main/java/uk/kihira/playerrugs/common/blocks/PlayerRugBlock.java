@@ -1,10 +1,11 @@
 package uk.kihira.playerrugs.common.blocks;
 
 import net.minecraft.block.BlockContainer;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
@@ -12,43 +13,48 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import uk.kihira.playerrugs.PlayerRugs;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PlayerRugBlock extends BlockContainer {
 
     public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
     public static final PropertyBool STANDING = PropertyBool.create("standing");
 
+    private static final AxisAlignedBB STANDING_EAST = new AxisAlignedBB(0, 0, 4f/16f, 1f/16f, 1, 12f/16f);
+    private static final AxisAlignedBB STANDING_WEST = new AxisAlignedBB(15f/16f, 0, 4f/16f, 1f, 1, 12f/16f);
+    private static final AxisAlignedBB STANDING_NORTH = new AxisAlignedBB(4f/16f, 0, 15f/16f, 12f/16f, 1, 1f);
+    private static final AxisAlignedBB STANDING_SOUTH = new AxisAlignedBB(4f/16f, 0, 0, 12f/16f, 1, 1f/16f);
+    private static final AxisAlignedBB FACING_EAST_WEST = new AxisAlignedBB(0, 0, 0.2f, 1, 1f/16f, 0.8f);
+    private static final AxisAlignedBB FACING_NORTH_SOUTH = new AxisAlignedBB(0.2f, 0, 0, 0.8f, 1f/16f, 1);
+
     public PlayerRugBlock() {
         super(Material.cloth);
         setUnlocalizedName("playerRug");
         setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(STANDING, false));
         setCreativeTab(CreativeTabs.tabBlock);
-        setStepSound(soundTypeCloth);
+        setSoundType(SoundType.CLOTH);
     }
 
     @Override
-    public int getRenderType() {
-        return 2;
+    public EnumBlockRenderType getRenderType(IBlockState state) {
+        return EnumBlockRenderType.MODEL;
     }
 
     @Override
-    public boolean isOpaqueCube() {
+    public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
 
     @Override
-    public boolean isFullCube() {
+    public boolean isFullCube(IBlockState state) {
         return false;
     }
 
@@ -61,82 +67,44 @@ public class PlayerRugBlock extends BlockContainer {
     }
 
     @Override
-    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-        ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
-        drops.add(PlayerRugs.INSTANCE.getPlayerRugStack(((PlayerRugTE) world.getTileEntity(pos)).getPlayerProfile()));
-        return drops;
-    }
-
-    @Override
-    public AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state) {
-        setBlockBoundsBasedOnState(world, pos);
-        return super.getCollisionBoundingBox(world, pos, state);
-    }
-
-    @Override
-    public void setBlockBoundsBasedOnState(IBlockAccess world, BlockPos pos) {
-        IBlockState state = world.getBlockState(pos);
-        if (!(state.getBlock() instanceof PlayerRugBlock)) {
-            return;
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
+        if (te instanceof PlayerRugTE) {
+            spawnAsEntity(worldIn, pos, PlayerRugs.INSTANCE.getPlayerRugStack(((PlayerRugTE) te).getPlayerProfile()));
         }
+        else super.harvestBlock(worldIn, player, pos, state, te, stack);
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
         if (state.getValue(STANDING)) {
-            minY = 0;
-            maxY = 1f;
-            if (state.getValue(FACING).getHorizontalIndex() % 2 != 0) {
-                if (state.getValue(FACING) == EnumFacing.EAST) {
-                    minX = 0f;
-                    maxX = 1f/16f;
-                }
-                else {
-                    minX = 15f/16f;
-                    maxX = 1f;
-                }
-                minZ = 4f/16f;
-                maxZ = 12f/16f;
-            }
-            else {
-                if (state.getValue(FACING) == EnumFacing.SOUTH) {
-                    minZ = 0f;
-                    maxZ = 1f/16f;
-                }
-                else {
-                    minZ = 15f/16f;
-                    maxZ = 1f;
-                }
-                minX = 4f/16f;
-                maxX = 12f/16f;
+            switch (state.getValue(FACING)) {
+                case NORTH:
+                    return STANDING_NORTH;
+                case SOUTH:
+                    return STANDING_SOUTH;
+                case WEST:
+                    return STANDING_WEST;
+                case EAST:
+                    return STANDING_EAST;
             }
         }
         else {
-            if (state.getValue(FACING).getHorizontalIndex() % 2 != 0) {
-                minX = 0f;
-                minZ = 0.2f;
-                maxX = 1f;
-                maxZ = 0.8f;
-            }
-            else {
-                minX = 0.2f;
-                minZ = 0f;
-                maxX = 0.8f;
-                maxZ = 1f;
-            }
-            minY = 0;
-            maxY = 1f/16f;
+            return state.getValue(FACING).getHorizontalIndex() % 2 != 0 ? FACING_EAST_WEST : FACING_NORTH_SOUTH;
         }
+        return super.getBoundingBox(state, source, pos);
     }
 
     @Override
-    public AxisAlignedBB getSelectedBoundingBox(World world, BlockPos pos) {
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World world, BlockPos pos) {
         float xLength = 0f;
         float zLength = 0f;
         float xOffset = 0f;
         float zOffset = 0f;
         float yOffset = -7.5f/16f;
         float yLength = 1f;
-        IBlockState state = world.getBlockState(pos);
         if (state.getValue(STANDING)) {
-            yLength = 12f;
-            yOffset = -6f/16f;
+            yLength = 24f;
+            yOffset = -12f/16f;
         }
         switch (state.getValue(FACING).getHorizontalIndex() + (state.getValue(STANDING) ? 4 : 0)){
             case 0:
@@ -183,11 +151,11 @@ public class PlayerRugBlock extends BlockContainer {
         zOffset += pos.getZ()+0.5f;
         xOffset += pos.getX()+0.5f;
         yOffset += pos.getY()+0.5f;
-        return AxisAlignedBB.fromBounds(xOffset-(xLength/2f)/16f, yOffset-(yLength/2f)/16f, zOffset-(zLength/2f)/16f, xOffset+(xLength/2f)/16f, yOffset+(yLength/2f)/16f, zOffset+(zLength/2f)/16f);
+        return new AxisAlignedBB(xOffset-(xLength/2f)/16f, yOffset-(yLength/2f)/16f, zOffset-(zLength/2f)/16f, xOffset+(xLength/2f)/16f, yOffset+(yLength/2f)/16f, zOffset+(zLength/2f)/16f);
     }
 
     @Override
-    public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player) {
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
         return PlayerRugs.INSTANCE.getPlayerRugStack(((PlayerRugTE) world.getTileEntity(pos)).getPlayerProfile());
     }
 
@@ -199,16 +167,19 @@ public class PlayerRugBlock extends BlockContainer {
     /**
      * Convert the given metadata into a BlockState for this Block
      */
+    @Override
     public IBlockState getStateFromMeta(int meta) {
         return getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta % 4)).withProperty(STANDING, meta >= 4);
     }
 
+    @Override
     public int getMetaFromState(IBlockState state) {
         return state.getValue(FACING).getHorizontalIndex() + (state.getValue(STANDING) ? 4 : 0);
     }
 
-    protected BlockState createBlockState() {
-        return new BlockState(this, FACING, STANDING);
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, FACING, STANDING);
     }
 
     @Override

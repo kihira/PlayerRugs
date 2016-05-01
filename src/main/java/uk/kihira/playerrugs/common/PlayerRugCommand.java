@@ -1,8 +1,10 @@
 package uk.kihira.playerrugs.common;
 
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import uk.kihira.playerrugs.PlayerRugs;
@@ -19,10 +21,10 @@ public class PlayerRugCommand extends CommandBase {
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) {
+    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         EntityPlayer player = (EntityPlayer) sender;
-        ItemStack itemStack = PlayerRugs.INSTANCE.getPlayerRugStack(args.length == 1 ? MinecraftServer.getServer().getPlayerProfileCache().getGameProfileForUsername(args[0]) : player.getGameProfile());
-        player.setCurrentItemOrArmor(0, itemStack);
+        ItemStack itemStack = PlayerRugs.INSTANCE.getPlayerRugStack(args.length == 1 ? server.getPlayerProfileCache().getGameProfileForUsername(args[0]) : player.getGameProfile());
+        player.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, itemStack);
     }
 
     @Override
