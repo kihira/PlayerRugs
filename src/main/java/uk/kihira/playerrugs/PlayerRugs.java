@@ -4,6 +4,9 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTUtil;
@@ -18,10 +21,9 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.RecipeSorter;
 import uk.kihira.playerrugs.common.PlayerRugCommand;
-import uk.kihira.playerrugs.common.PlayerRugRecipe;
 import uk.kihira.playerrugs.common.blocks.PlayerRugBlock;
 import uk.kihira.playerrugs.common.items.PlayerRugItem;
 import uk.kihira.playerrugs.common.tileentities.PlayerRugTE;
@@ -51,8 +53,8 @@ public class PlayerRugs {
 
         MinecraftForge.EVENT_BUS.register(this);
 
-        RecipeSorter.register("playerrugs:rug", PlayerRugRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shaped");
-        GameRegistry.addRecipe(new PlayerRugRecipe());
+        //GameRegistry.addShapedRecipe(getPlayerRugStack(null), " H ", "LLL", " L ", 'H', new ItemStack(Blocks.skull, 1, 3), 'L', Items.leather);
+        GameRegistry.addRecipe(getPlayerRugStack(null), " H ", "LLL", " L ", 'H', new ItemStack(Items.skull, 1, 3), 'L', Items.leather);
 
         // Load config
         config = new Configuration(e.getSuggestedConfigurationFile());
@@ -90,6 +92,17 @@ public class PlayerRugs {
             NBTUtil.writeGameProfile(playerTag, e.getEntityPlayer().getServer().getPlayerProfileCache().getGameProfileForUsername(stack.getDisplayName()));
             tagCompound.setTag("PlayerProfile", playerTag);
             e.getOutput().setTagCompound(tagCompound);
+        }
+    }
+
+    @SubscribeEvent
+    public void onCraft(PlayerEvent.ItemCraftedEvent e) {
+        if (e.crafting.getItem() == Item.getItemFromBlock(playerRugBlock)) {
+            NBTTagCompound tagCompound = e.crafting.hasTagCompound() ? e.crafting.getTagCompound() : new NBTTagCompound();
+
+            tagCompound.setTag("PlayerProfile", e.craftMatrix.getStackInSlot(1).hasTagCompound() ?
+                    e.craftMatrix.getStackInSlot(1).getTagCompound().getCompoundTag("SkullOwner") : new NBTTagCompound());
+            e.crafting.setTagCompound(tagCompound);
         }
     }
 
