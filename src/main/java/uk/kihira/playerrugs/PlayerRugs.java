@@ -87,7 +87,7 @@ public class PlayerRugs {
         if (Block.getBlockFromItem(stack.getItem()) instanceof PlayerRugBlock && stack.hasDisplayName()) {
             NBTTagCompound tagCompound = stack.getTagCompound() != null ? stack.getTagCompound() : new NBTTagCompound();
             NBTTagCompound playerTag = stack.getSubCompound("PlayerProfile", true);
-            NBTUtil.writeGameProfile(playerTag, e.getEntityLiving().getServer().getPlayerProfileCache().getGameProfileForUsername(stack.getDisplayName()));
+            NBTUtil.writeGameProfile(playerTag, e.getEntityPlayer().getServer().getPlayerProfileCache().getGameProfileForUsername(stack.getDisplayName()));
             tagCompound.setTag("PlayerProfile", playerTag);
             e.getOutput().setTagCompound(tagCompound);
         }

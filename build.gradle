@@ -12,13 +12,11 @@ buildscript {
 }
 
 // Fix for assets
-/*
-idea {
-    module {
-        inheritOutputDirs = true
-    }
-}
-*/
+//idea {
+//    module {
+//        inheritOutputDirs = true
+//    }
+//}
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
@@ -27,7 +25,7 @@ group= "uk.kihira.playerrugs" // http://maven.apache.org/guides/mini/guide-namin
 archivesBaseName = "PlayerRugs"
 
 minecraft {
-    version = "1.9-12.16.0.1811-1.9"
+    version = "1.9-12.16.0.1866-1.9"
     runDir = "eclipse"
     mappings = "snapshot_20160318"
 }
