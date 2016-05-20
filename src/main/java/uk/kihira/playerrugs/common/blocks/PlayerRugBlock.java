@@ -36,10 +36,10 @@ public class PlayerRugBlock extends BlockContainer {
     private static final AxisAlignedBB FACING_NORTH_SOUTH = new AxisAlignedBB(0.2f, 0, 0, 0.8f, 1f/16f, 1);
 
     public PlayerRugBlock() {
-        super(Material.cloth);
+        super(Material.CLOTH);
         setUnlocalizedName("playerRug");
         setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(STANDING, false));
-        setCreativeTab(CreativeTabs.tabBlock);
+        setCreativeTab(CreativeTabs.DECORATIONS);
         setSoundType(SoundType.CLOTH);
     }
 
@@ -164,9 +164,6 @@ public class PlayerRugBlock extends BlockContainer {
         return getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite()).withProperty(STANDING, facing.getAxis() != EnumFacing.Axis.Y);
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     @Override
     public IBlockState getStateFromMeta(int meta) {
         return getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta % 4)).withProperty(STANDING, meta >= 4);

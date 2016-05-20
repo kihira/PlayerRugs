@@ -4,11 +4,12 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.math.AxisAlignedBB;
+
+import javax.annotation.Nullable;
 
 public class PlayerRugTE extends TileEntity {
 
@@ -23,7 +24,7 @@ public class PlayerRugTE extends TileEntity {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbtTagCompound) {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbtTagCompound) {
         super.writeToNBT(nbtTagCompound);
         if (getPlayerProfile() != null) {
             NBTTagCompound playerProfileTag = getTileData().getCompoundTag("PlayerProfile");
@@ -31,13 +32,16 @@ public class PlayerRugTE extends TileEntity {
             getTileData().setTag("PlayerProfile", playerProfileTag);
         }
         super.writeToNBT(nbtTagCompound);
+        return nbtTagCompound;
     }
 
-    @Override
-    public Packet getDescriptionPacket() {
-        NBTTagCompound tagCompound = new NBTTagCompound();
-        writeToNBT(tagCompound);
-        return new SPacketUpdateTileEntity(getPos(), 3, tagCompound);
+    @Nullable
+    public SPacketUpdateTileEntity getUpdatePacket() {
+        return new SPacketUpdateTileEntity(this.pos, 3, this.getUpdateTag());
+    }
+
+    public NBTTagCompound getUpdateTag() {
+        return this.writeToNBT(new NBTTagCompound());
     }
 
     @Override

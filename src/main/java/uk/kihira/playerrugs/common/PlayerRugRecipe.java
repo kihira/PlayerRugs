@@ -16,7 +16,7 @@ public class PlayerRugRecipe implements IRecipe {
     public boolean matches(InventoryCrafting crafting, World world) {
         ItemStack skullStack = crafting.getStackInSlot(1);
         // Check for skull
-        if (skullStack == null || skullStack.getItem() != Items.skull || skullStack.getItemDamage() != 3) {
+        if (skullStack == null || skullStack.getItem() != Items.SKULL || skullStack.getItemDamage() != 3) {
             return false;
         }
         // Check for leather
@@ -57,7 +57,7 @@ public class PlayerRugRecipe implements IRecipe {
     }
 
     private boolean checkLeather(ItemStack itemStack) {
-        return itemStack != null && itemStack.getItem() == Items.leather;
+        return itemStack != null && itemStack.getItem() == Items.LEATHER;
     }
 
     private GameProfile getGameProfile(ItemStack stack) {
